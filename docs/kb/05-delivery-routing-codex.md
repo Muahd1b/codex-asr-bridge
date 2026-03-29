@@ -3,30 +3,32 @@
 Date: 2026-03-29
 
 ## Problem
-Injection failures or hidden fallback behavior can send text to the wrong place.
+Wrong-target insertion can happen when focus, permissions, or fallback behavior are not explicit.
 
 ## Delivery Contract
-- Delivery target is the current focused app (subject to configured inject mode).
-- If focused app is not allowed for the current mode, block delivery and show actionable error.
-- No hidden fallback to session forwarding or bridge transport.
+- Target is current focused app.
+- Inject mode must be validated before delivery.
+- If invalid/disallowed target, block delivery with clear action hint.
+- No hidden external/session transport fallback.
 
-## Injection Interface (current)
-- Focused app detected via macOS System Events.
-- Keystroke injection performed through AppleScript.
-- Chunked insertion with newline preservation.
+## Injection Interface (Current)
+- Focused app via System Events.
+- AppleScript keystroke injection.
+- Chunking with newline preservation.
 
-## Routing Algorithm (Current)
-1. Resolve focused app name.
-2. Validate against inject mode (`terminal_only`, `any_focused`, `auto`).
-3. Split transcript into bounded chunks.
-4. Inject chunks to focused app through AppleScript.
-5. Emit runtime/talk log result with target app and chunk count.
+## Target Routing Algorithm
+1. Read focused app.
+2. Validate against inject mode.
+3. Build bounded chunks.
+4. Inject chunk sequence.
+5. Emit result log with target app + chunk count.
+
+## Required Enhancements
+- Add fallback chain policy (keystroke -> clipboard/paste -> retry path).
+- Add app-specific profiles for terminal/editor edge cases.
+- Add per-utterance delivery id and result telemetry.
 
 ## Failure Handling
-- Accessibility denied: show explicit macOS TCC guidance.
-- Focused app not allowed: block and tell user how to switch mode.
-- AppleScript failure: show truncated stderr/stdout detail.
-
-## Idempotency / Safety
-- Keep one utterance delivery attempt per completed recording.
-- Include timing and target app details in runtime logs for debugging.
+- TCC/accessibility denied -> explicit remediation steps.
+- Disallowed app -> suggest mode switch or focus change.
+- Injection error -> include compact stderr detail.

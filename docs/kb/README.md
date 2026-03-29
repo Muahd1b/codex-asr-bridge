@@ -1,35 +1,41 @@
-# Local WhisperFlow Knowledge Base
+# Local Dictation Knowledge Base
 
 Date: 2026-03-29
-Scope: Architecture and implementation references for the local-first ASR dictation stack in this workspace.
-
-## Purpose
-
-This KB captures capability targets, system design decisions, implementation recipes, and migration planning for the Rust-first runtime.
-
-## Index
-
-- `01-capability-parity-matrix.md` - target capability matrix
-- `02-rust-system-architecture.md` - Rust monolith architecture
-- `03-asr-engine-whisper-stack.md` - ASR engine options and runtime tradeoffs
-- `04-audio-capture-vad.md` - capture and endpointing strategy
-- `05-delivery-routing-codex.md` - deterministic focused-app delivery contract
-- `06-command-mode-local-nlp.md` - local rewrite/command-mode behavior
-- `07-data-privacy-observability.md` - privacy and observability constraints
-- `08-test-benchmark-plan.md` - validation and benchmark planning
-- `09-capability-implementation-recipes.md` - implementation recipes
-- `10-model-migration-plan.md` - model/runtime migration plan
-- `SOURCES.md` - external source list
+Scope: Architecture, implementation, and validation references for the local injection-only ASR runtime.
 
 ## Current Baseline
 
-- Primary runtime: Rust TUI + global daemon (`tools/session-switcher-tui`).
-- Primary ASR path: local Voxtral via Rust runtime.
-- Delivery path: focused-app injection only (no FastAPI/WebSocket bridge path).
+- Runtime: Rust TUI + global daemon (`tools/session-switcher-tui`).
+- ASR: local Voxtral path.
+- Delivery: focused-app injection only.
+- Hotkey: fixed `RIGHT_SHIFT`.
 
-## Build Principle
+## Index
 
-- Local-first processing by default.
-- Deterministic delivery behavior with explicit runtime states.
-- No hidden fallback behavior.
-- Observable and testable state transitions.
+- `01-capability-parity-matrix.md`
+- `02-rust-system-architecture.md`
+- `03-asr-engine-whisper-stack.md`
+- `04-audio-capture-vad.md`
+- `05-delivery-routing-codex.md`
+- `06-command-mode-local-nlp.md`
+- `07-data-privacy-observability.md`
+- `08-test-benchmark-plan.md`
+- `09-capability-implementation-recipes.md`
+- `10-model-migration-plan.md`
+- `SOURCES.md`
+
+## Backlog Summary (Missing Integrations)
+
+1. VAD turn detection.
+2. True always-on continuous dictation.
+3. Live partial transcript streaming.
+4. Live wrong-word correction pipeline.
+5. Optional final-pass local rewrite model.
+6. Injection fallback stack.
+7. App compatibility profiles.
+8. Permission health diagnostics.
+9. Structured observability.
+10. Personalization store.
+11. Developer-aware token protection.
+12. Reliability harness.
+13. Packaging/autostart integration.

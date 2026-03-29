@@ -1,32 +1,34 @@
 # PRD: Local WhisperFlow-Style Dictation (Injection-Only)
 
-Status: Draft v2
+Status: Draft v3
 Date: 2026-03-29
 Owner: Jonas
-Workspace: /Users/jonasknppel/dev/codex-asr-bridge
+Workspace: /Users/jonasknppel/DEV/codex-asr-bridge
 
 ## 1. Product Summary
-Build a fully local, privacy-first dictation product for macOS with reliable push-to-talk / always-on voice capture and deterministic focused-app text injection.
+Build a fully local, privacy-first dictation product for macOS that delivers reliable focused-app injection with low-latency transcription and high correction quality.
 
 ## 2. Problem Statement
-Current runtime is functional, but not yet at WhisperFlow-level polish and reliability for daily dictation.
+Current runtime works, but still lacks several integrations needed for WhisperFlow-level dictation polish.
 
 Current pain:
-- Always-on dictation still needs true VAD turn segmentation.
-- Injection reliability varies by focused app and permissions state.
-- UX and observability need stronger state clarity and recovery guidance.
+- No true VAD-driven turn segmentation.
+- No live partial transcript stream in UI.
+- No live correction layer for wrong words during dictation.
+- Injection reliability/fallback behavior needs deeper app-specific hardening.
+- Observability and reliability testing are still lightweight.
 
 ## 3. Goals
 Primary goals:
-- Fully local speech-to-text path by default.
+- Fully local speech-to-text by default.
 - Deterministic focused-app injection behavior.
 - Smooth always-on dictation with VAD turn boundaries.
-- One clear control surface (TUI + daemon states + logs).
+- Strong correction quality for wrong-word cleanup.
 
 Secondary goals:
-- Local command-mode rewriting for selected text.
+- Local command-mode rewriting.
 - Personal dictionary/snippets.
-- Better low-latency post-processing polish.
+- Optional final-pass rewrite model (local) for polished final text.
 
 ## 4. Non-Goals (v1)
 - FastAPI/WebSocket bridge transports.
@@ -37,62 +39,77 @@ Secondary goals:
 ## 5. Functional Requirements
 FR-1 Audio Capture:
 - Push-to-talk and always-on modes.
-- Reliable stop/start and interruption handling.
+- Reliable interruption and fast stop behavior.
 
 FR-2 ASR:
-- Local Voxtral (current) with clear model readiness checks.
+- Local Voxtral runtime with readiness checks and lock controls.
 
 FR-3 Delivery:
 - Focused-app injection only.
 - Inject mode guardrails (`terminal_only`, `any_focused`, `auto`).
-- Explicit, actionable errors for permission/target failures.
+- Explicit errors for permission/target failures.
 
-FR-4 Local Processing:
-- Optional punctuation/filler cleanup.
-- Local rewrite modes (concise/formal/bulletize/etc).
+FR-4 Text Processing:
+- Existing rewrite modes.
+- Live correction dictionary/rules for partial/final text.
+- Optional final-pass local model rewrite on finalized utterance.
 
 FR-5 Observability:
-- Runtime/talk logs with deterministic state transitions.
-- Timing and failure details surfaced in UI.
+- Runtime/talk logs with stage-level status and failure reasons.
+- `utterance_id` + latency timing for each delivery path.
 
 ## 6. Non-Functional Requirements
 NFR-1 Privacy:
 - No cloud egress by default.
 
 NFR-2 Performance:
-- End-of-speech to transcript display p95 <= 1200 ms target.
-- End-of-speech to delivery complete p95 <= 1800 ms target.
+- p95 speech-end -> transcript <= 1200 ms target.
+- p95 transcript -> injection complete <= 1800 ms target.
 
 NFR-3 Reliability:
 - Stable daemon behavior in long-running sessions.
-- Recoverable error states without full restart.
+- Recoverable failures without full app restart.
 
-## 7. Milestones
+## 7. Missing Integrations (Backlog)
+1. VAD turn detection integration.
+2. True always-on continuous dictation pipeline.
+3. Live partial transcript streaming in UI.
+4. Live wrong-word correction layer.
+5. Optional final-pass local rewrite model.
+6. Injection fallback stack.
+7. App compatibility profiles.
+8. Permission health diagnostics/remediation flow.
+9. Structured observability.
+10. Personalization store.
+11. Developer-aware token protection.
+12. Reliability harness.
+13. Packaging/autostart integration.
+
+## 8. Milestones
 M1 (P0 Stability):
-- Strengthen deterministic injection flow and failure handling.
-- Add state-rich logs and health indicators.
+- Add structured state transitions and failure taxonomy.
+- Harden deterministic injection behavior and fallback policy.
 
-M2 (P0/P1 Dictation Quality):
-- Add VAD turn segmentation for always-on mode.
-- Improve live partial/final transcript feedback.
+M2 (P0 Dictation Quality):
+- Add VAD-based turn segmentation.
+- Add live partial transcript stream.
 
-M3 (P1 Productivity):
-- Expand command mode transforms.
-- Add dictionary/snippets.
+M3 (P1 Correction Quality):
+- Add live correction dictionary/rule pipeline.
+- Add optional final-pass local model rewrite.
 
-M4 (P2 Polish):
-- Packaging/onboarding, advanced shortcuts, tuning controls.
+M4 (P1 Productivity):
+- Expand command mode + personalization store.
 
-## 8. Acceptance Criteria
-- AC-1: 100/100 utterances either inject successfully to allowed focused app or fail with explicit actionable reason.
-- AC-2: Always-on mode can run 30 minutes without crash.
-- AC-3: p95 end-of-speech -> transcript <= 1200 ms in target environment.
-- AC-4: Permission and focus failures are clear and recoverable in UI.
+M5 (P2 Ops/Polish):
+- Reliability test harness + packaging/autostart.
 
-## 9. Risks
-- VAD tuning may miss speech or over-segment.
-- Accessibility/TCC variance across host apps.
-- Latency spikes on larger models.
+## 9. Acceptance Criteria
+- AC-1: 100/100 utterances either inject into allowed target or fail with clear actionable reason.
+- AC-2: Always-on mode runs 30 minutes without crash.
+- AC-3: p95 speech-end -> transcript <= 1200 ms.
+- AC-4: Wrong-word correction rate improves measurably on golden set.
+- AC-5: Permission/focus failures are self-diagnosable in UI.
 
-## 10. Immediate Next Build Step
-Implement VAD-based utterance segmentation and wire it into the existing daemon pipeline while preserving current injection guardrails.
+## 10. Immediate Next Step
+Implement VAD-based turn segmentation first, then layer live partial streaming + correction pipeline.

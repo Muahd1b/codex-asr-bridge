@@ -5,49 +5,50 @@ Date: 2026-03-29
 ## Test Layers
 
 ### Unit Tests
-- command parsing and transforms.
-- inject-mode parsing/validation.
+- transform/rewrite functions,
+- correction rule engine,
+- inject-mode parsing,
 - VAD endpointing logic.
 
 ### Integration Tests
-- end-to-end utterance -> transcript -> delivery.
-- focused-app target/mode correctness.
-- daemon lifecycle start/stop and health transitions.
+- end-to-end utterance -> transcript -> injection,
+- target app/mode correctness,
+- daemon lifecycle + health transitions.
 
 ### Soak Tests
-- always-on mode for 30-60 minutes.
-- repeated start/stop cycles for capture and server.
+- always-on mode for 30-60 minutes,
+- repeated start/stop cycles,
+- long-session memory stability.
 
-## Routing Correctness Test
-- prepare focused-app scenarios (Terminal/iTerm/Warp + disallowed apps).
-- send 100 synthetic utterances.
-- assert deliveries obey inject mode and never use hidden fallback behavior.
+## Injection Correctness Test
+- prepare focused-app scenarios (allowed/disallowed targets),
+- send synthetic utterances,
+- assert behavior matches inject mode policy,
+- assert no hidden fallback behavior.
 
 ## Latency Benchmarks
 Metrics:
 - speech-end -> transcript-ready (p50/p95)
-- transcript-ready -> delivery-complete (p50/p95)
+- transcript-ready -> injection-complete (p50/p95)
 
 Target SLOs:
 - p95 speech-end -> transcript <= 1200 ms
-- p95 transcript -> delivery <= 1800 ms
+- p95 transcript -> injection <= 1800 ms
 
-## Failure Injection
-- missing model file.
-- unavailable microphone.
-- accessibility/input-monitoring denied.
-- focused app disallowed by inject mode.
+## Failure Injection Cases
+- missing model file,
+- unavailable microphone,
+- accessibility/input-monitoring denied,
+- focused app disallowed by mode.
 
-Expected outcome:
+Expected outcomes:
 - no panic,
-- clear user-facing error,
+- explicit user-facing remediation hints,
 - recover without full process restart.
 
-## Golden Audio Dataset
-Build local fixtures:
-- short clean speech
-- noisy speech
-- whispered speech
-- code-heavy dictation samples
-
-Use fixtures in regression runs to track WER proxy and correction rate.
+## Golden Dataset
+- clean speech,
+- noisy speech,
+- whispered speech,
+- code-heavy dictation,
+- known wrong-word correction set.

@@ -1,67 +1,50 @@
 # Wispr Flow Capability Analysis
 
 Date: 2026-03-29
-Scope: Detailed capability breakdown of Wispr Flow (with emphasis on "whisper" usage, dictation, developer workflow, and security/compliance).
+Scope: Reference capability breakdown used to guide local injection-only ASR product decisions.
 
 ## Whisper Capability
-- Supports quiet/whisper-level dictation for low-noise environments.
-- Not a separate product tier; part of normal dictation behavior.
+- Quiet/low-volume dictation support.
+- Integrated into normal dictation experience.
 
 ## Core Dictation
-- Dictation in most text fields and apps (documents, chat, email, IDEs, browser forms).
-- Real-time transcription with auto-paste behavior.
-- 100+ language support.
-- Platform coverage: Mac, Windows, iOS, Android.
-- Public claim: roughly 4x typing speed.
+- Dictation across many text fields/apps.
+- Real-time transcription + insertion UX.
+- Multi-language support.
 
 ## Live Text Refinement
-- Backtracking correction handling while speaking.
-- Filler-word cleanup.
-- Automatic punctuation based on speech.
-- Spoken list formatting.
-- Custom dictionary learning.
-- Snippets (voice shortcuts for longer text).
-- Style/tone adaptation features (desktop English focus in current docs).
+- Backtracking corrections while speaking.
+- Filler cleanup and punctuation.
+- List formatting from speech.
+- Dictionary/snippet personalization.
 
 ## Command Mode
-- Voice-driven rewrite/transform of selected text.
-- Actions include translation, summarization, expansion, and tone edits.
-- Query mode can route to web search (Perplexity) when no text is selected.
-- Keyboard-triggered flow with escape/cancel and undo support.
-- Selection window in current docs: 1-1000 words.
-- iOS support is partial (search prompts supported; text-edit behavior has limits).
+- Rewrite/transform selected text.
+- Summarize/translate/expand/tone edits.
+- Undo/cancel pathways.
 
-## Developer Capabilities
-- IDE-oriented dictation in Cursor, VS Code, Windsurf, and terminals.
-- Variable recognition from visible editor context.
-- Supported languages listed: JavaScript, TypeScript, Python, Java, Swift, C++, C, Rust, Go.
-- File tagging for chat workflows in Cursor and Windsurf (not VS Code chat tagging).
-- Terminal caveat: Flow uses standard paste shortcuts; fallback is "Paste last transcript" or manual paste.
-- VS Code Insiders currently has stated limits for variable recognition/file tagging.
+## Developer-Oriented Capabilities
+- Strong behavior in terminal/editor workflows.
+- Better handling of identifiers/files/technical tokens.
+- Context-sensitive insertion behavior.
 
-## Team and Admin Features
-- Shared dictionary and shared snippets.
-- Team usage dashboards.
-- Centralized billing and admin controls.
-- Enterprise-tier admin controls include SSO/SAML and additional governance controls.
+## Security and Privacy
+- Strong privacy/retention controls.
+- Compliance posture for enterprise tiers.
 
-## Security, Privacy, and Compliance
-- Privacy Mode / Zero Data Retention for dictation content.
-- Enterprise can enforce ZDR organization-wide.
-- HIPAA BAA support with privacy-lock behavior once BAA/ZDR is enforced.
-- SOC 2 Type II and ISO 27001 claims in compliance documentation.
-- Encryption in transit (TLS) and encryption-at-rest controls.
-- Important nuance: dictation content protections differ from operational metadata retention (usage/account/billing/session telemetry).
+## Relevance to This Repository (Current)
+This repository now targets:
+- local-only runtime,
+- focused-app injection,
+- no bridge/session transport.
 
-## Plan-Level Positioning (High Level)
-- Basic: capped usage plus core dictation, dictionary/snippets/languages/privacy mode.
-- Pro: unlimited usage plus Command Mode and advanced/productivity features.
-- Enterprise: compliance/admin/security controls and enterprise support.
-
-## Operational Notes for ASR Bridge Context
-- Wispr Flow is optimized for direct text insertion into active apps and can be used with terminal workflows via paste fallbacks.
-- For Codex/terminal scenarios, reliability depends on focus state and terminal paste behavior.
-- Compared to a custom ASR bridge, Wispr Flow reduces implementation overhead but introduces vendor/runtime dependency and app-level integration constraints.
+Most relevant capability gaps to close:
+1. VAD + always-on turn segmentation.
+2. Live partial transcript stream.
+3. Live wrong-word correction integration.
+4. Optional final-pass local rewrite model.
+5. App-specific injection fallback reliability.
+6. Structured observability + reliability harness.
 
 ## Sources
 - https://wisprflow.ai/features

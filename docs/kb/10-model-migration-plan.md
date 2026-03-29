@@ -1,39 +1,32 @@
-# Model Migration Plan: MLX Whisper Large v3 -> Rust Runtime
+# Model Plan: Voxtral Primary, Whisper Optional
 
 Date: 2026-03-29
 
-## Current Situation
-Existing local model is MLX format:
-- `/Users/jonasknppel/dev/models/whisper-large-v3/mlx-community__whisper-large-v3-mlx/weights.npz`
+## Current Runtime
+- Production path uses local Voxtral in Rust runtime.
+- Bridge-side model workflows are removed.
 
-Rust-first target engine (`whisper-rs`) expects whisper.cpp-compatible model artifacts.
+## Optional Whisper Track
+Whisper support remains an optional enhancement for benchmarking or alternative runtime experiments.
 
-## Migration Paths
+## Paths
+Existing local MLX model:
+- `/Users/jonasknppel/DEV/models/whisper-large-v3/mlx-community__whisper-large-v3-mlx/weights.npz`
 
-### Path A (recommended)
-- Keep current MLX model for fallback verification only.
-- Download whisper.cpp-compatible large-v3 model into a new model store.
-- Point Rust ASR engine to that model path.
-
-### Path B
-- Keep MLX-only and call Python sidecar from Rust.
-- Reject for final architecture (not fully Rust runtime).
-
-## Proposed Directory Layout
-- `/Users/jonasknppel/dev/models/whisper-large-v3/mlx-community__whisper-large-v3-mlx/` (existing)
-- `/Users/jonasknppel/dev/models/whisper-large-v3/whispercpp/` (new)
+Potential whisper.cpp-compatible model target:
+- `/Users/jonasknppel/DEV/models/whisper-large-v3/whispercpp/`
 
 ## Validation Checklist
-- Model file present and readable by Rust process.
-- Startup model load succeeds in <= 5s warm start target.
-- First transcription result matches baseline quality expectations.
-- No crash on repeated transcriptions (100-run loop).
+- Model readable by runtime process.
+- Startup load in target budget.
+- No crash in repeated transcriptions.
+- Measured quality comparison vs Voxtral baseline.
 
-## Rollback Plan
-- If Rust engine path fails quality/performance, temporarily keep Voxtral runtime as primary while Rust Whisper integration is fixed.
+## Rollback Strategy
+- Keep Voxtral as primary runtime while any optional Whisper track is unstable.
 
 ## Decision Gate
-Before coding ASR crate, confirm:
-1. accepted model runtime path (`whisper-rs`),
-2. accepted model artifact location,
-3. baseline benchmark audio set for quality checks.
+Before implementing Whisper path:
+1. confirm runtime adapter choice,
+2. confirm artifact location,
+3. define benchmark/audio comparison set.

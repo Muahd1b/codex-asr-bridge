@@ -1,109 +1,74 @@
 # Capability Implementation Recipes (Rust)
 
 Date: 2026-03-29
-Purpose: Concrete implementation recipes for each major user-facing capability.
+Purpose: Concrete implementation recipes for key missing integrations.
 
-## Recipe 1: Always-On Dictation
+## Recipe 1: Always-On Dictation + VAD
 Objective:
-- Continuous listening with low false triggers and fast utterance emission.
+- continuous listening with utterance-level endpointing.
 
 Implementation:
-1. Capture microphone PCM via `cpal` callback.
-2. Convert frames to mono + 16kHz f32.
-3. Feed frames to VAD classifier.
-4. Build utterance while voiced.
-5. On end-of-speech, send utterance to ASR worker.
-6. Emit partial UI status updates immediately.
+1. `cpal` capture callback.
+2. frame queue -> VAD classifier.
+3. utterance builder for voiced spans.
+4. emit utterance on speech end.
+5. feed ASR worker.
 
-Required controls:
-- Toggle always-on (`a`).
-- Hard stop within <= 200 ms.
-- Visual state in TUI footer.
-
-## Recipe 2: Deterministic Focused-App Delivery
+## Recipe 2: Deterministic Focused-App Injection
 Objective:
-- Never inject transcript into an unintended app.
+- predictable target behavior.
 
 Implementation:
-1. Resolve focused app from System Events.
-2. Validate target against inject mode.
-3. Split transcript into bounded chunks.
-4. Inject chunks through AppleScript.
-5. Surface success/failure in talk pane with target app + chunk count.
+1. resolve focused app.
+2. enforce inject mode contract.
+3. chunk transcript.
+4. inject via AppleScript.
+5. emit delivery result and timings.
 
-Guardrails:
-- No hidden session-forwarding fallback.
-- Block delivery if focused app is disallowed by mode.
-
-## Recipe 3: Transcript Cleanup Pipeline
+## Recipe 3: Live Wrong-Word Correction
 Objective:
-- Improve readability with minimal latency cost.
-
-Pipeline stages:
-1. Normalize whitespace and punctuation spacing.
-2. Optional filler stripping (`uh`, `um`, `you know`) with configurable aggressiveness.
-3. Optional capitalization and sentence boundary cleanup.
-4. Dictionary replacements.
-5. Snippet expansion.
-
-Constraints:
-- Must preserve code-like tokens and file paths.
-- Must be reversible (log pre/post text if debug enabled only).
-
-## Recipe 4: Developer-aware Dictation
-Objective:
-- Better coding prompt quality.
+- reduce recognition mistakes during and after dictation.
 
 Implementation:
-- add lexical detector for:
-  - snake_case,
-  - camelCase,
-  - dotted files,
-  - flags/options (`--foo`, `-x`).
-- protect backtick sections from cleanup transforms.
-- preserve extension-bearing filenames exactly.
+1. correction dictionary (exact replacements).
+2. safe phrase rewrite rules.
+3. protected-token guard (paths/flags/code ids).
+4. apply in partial + final stages.
 
-Future extension:
-- editor context adapter for current file names and symbols.
-
-## Recipe 5: Command Mode (Local)
+## Recipe 4: Optional Final-Pass Rewrite Model
 Objective:
-- Voice commands to rewrite selected text locally.
+- improve final readability without harming real-time UX.
 
 Implementation:
-1. Parse command intent from transcript.
-2. Obtain selected text from active target context.
-3. Apply deterministic transform.
-4. Show preview in TUI (optional).
-5. Apply and keep one-step undo snapshot.
+1. keep partial path deterministic-only.
+2. run local model rewrite on final utterance only.
+3. feature-flag and latency-budget guard.
+4. provide undo snapshot.
 
-Supported intents (v1):
-- rewrite concise,
-- summarize,
-- translate,
-- bulletize,
-- expand.
-
-## Recipe 6: Observability and Debuggability
+## Recipe 5: App Compatibility Profiles
 Objective:
-- Diagnose failures quickly without external tooling.
+- harden injection across target apps.
 
 Implementation:
-- Structured JSON logs with `tracing`.
-- Stage timings and delivery outcomes.
-- rotating file logs + in-TUI tail.
-- health panel showing:
-  - model loaded,
-  - mic available,
-  - accessibility permissions,
-  - injection mode/target readiness.
+- per-app policy for chunk size, newline behavior, and fallback method.
+- baseline profiles for Terminal, iTerm, Warp.
 
-## Recipe 7: Error Recovery UX
+## Recipe 6: Observability
 Objective:
-- Keep user in flow after errors.
+- fast debugging and measurable quality.
 
-Common errors and action hints:
-- mic unavailable -> show input device list shortcut.
-- model load fail -> show exact path expected.
-- focused app disallowed -> show inject mode switch hint.
-- AppleScript/TCC fail -> show permission remediation steps.
+Implementation:
+- `utterance_id` per turn,
+- stage timings,
+- error taxonomy,
+- rolling logs + structured output.
+
+## Recipe 7: Recovery UX
+Objective:
+- recover without restart.
+
+Common actions:
+- mic unavailable -> show device guidance,
+- permission denied -> show TCC remediation,
+- disallowed target app -> suggest mode/focus change,
+- model failure -> show expected model path.

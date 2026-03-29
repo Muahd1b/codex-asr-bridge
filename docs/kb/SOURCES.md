@@ -2,7 +2,7 @@
 
 Collected: 2026-03-29
 
-## Wispr Flow Reference Capabilities
+## WhisperFlow Reference
 - https://docs.wisprflow.ai/articles/2772472373-what-is-flow
 - https://docs.wisprflow.ai/articles/9559327591-flow-plans-and-what-s-included
 - https://docs.wisprflow.ai/articles/8476991260-command-mode
@@ -12,7 +12,7 @@ Collected: 2026-03-29
 - https://docs.wisprflow.ai/articles/1922179110-data-security-encryption
 - https://docs.wisprflow.ai/articles/5375461355-subprocessors-third-party-security
 
-## Whisper / ASR
+## ASR / Runtime
 - https://openai.com/index/whisper/
 - https://github.com/openai/whisper
 - https://github.com/ggml-org/whisper.cpp
@@ -25,11 +25,14 @@ Collected: 2026-03-29
 - https://docs.rs/crossterm/latest/crossterm/event/fn.poll.html
 - https://docs.rs/tokio/latest/tokio/sync/mpsc/
 - https://docs.rs/tracing-subscriber/latest/tracing_subscriber/
-- https://docs.rs/rusqlite/latest/rusqlite/struct.Transaction.html
 - https://docs.rs/crate/webrtc-vad/latest
 
+## macOS Injection Runtime
+- https://developer.apple.com/documentation/appkit/accessibility
+- https://developer.apple.com/documentation/foundation/nstask
+- `osascript` / System Events behavior observed in local runtime testing.
+
 ## Local Workspace Facts
-- Codex CLI help output: `codex exec resume --help`
-- Session file format observed at `~/.codex/sessions/.../*.jsonl`
-- Existing model path:
-  - `/Users/jonasknppel/dev/models/whisper-large-v3/mlx-community__whisper-large-v3-mlx/weights.npz`
+- Current runtime path: `tools/session-switcher-tui`.
+- Active hotkey behavior: fixed `RIGHT_SHIFT`.
+- Current ASR primary: Voxtral runtime path.

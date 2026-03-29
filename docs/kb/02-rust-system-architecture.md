@@ -3,20 +3,25 @@
 Date: 2026-03-29
 
 ## Architectural Style
-- Single Rust workspace with modular crates.
-- Event-driven pipeline with explicit state machine.
-- Strict separation of capture, inference, processing, delivery, and UI orchestration.
+- Single Rust workspace, event-driven runtime.
+- Explicit stage/state transitions.
+- Separation of capture, ASR, processing, injection, and UI.
+
+## Current Code Layout
+- Single crate at `tools/session-switcher-tui`.
+- Module split in `src/`:
+  - `audio.rs`, `asr.rs`, `transform.rs`, `inject.rs`, `daemon.rs`, `ui/*`, `config.rs`.
+- This is the active implementation baseline.
 
 ## Proposed Workspace Layout
-- `crates/tui-app`: ratatui/crossterm UI and keybindings.
-- `crates/audio-capture`: microphone capture and buffering.
-- `crates/vad`: VAD segmentation and endpointing.
-- `crates/asr-engine`: Whisper runtime adapter(s).
-- `crates/processor`: cleanup, dictionary, snippets, style transforms.
-- `crates/delivery`: Codex delivery + optional app insertion adapters.
-- `crates/session-store`: Codex session discovery and selection state.
-- `crates/telemetry`: tracing, metrics, run logs.
-- `crates/config`: versioned config/profile schema and migrations.
+- `crates/tui-app` - ratatui/crossterm UI.
+- `crates/audio-capture` - microphone stream handling.
+- `crates/vad` - voice activity detection and turn endpointing.
+- `crates/asr-engine` - Voxtral/Whisper adapter layer.
+- `crates/processor` - cleanup, correction, rewrite pipeline.
+- `crates/injector` - focused-app injection + fallback chain.
+- `crates/telemetry` - structured logs/metrics.
+- `crates/config` - profile schema + migrations.
 
 ## Runtime State Machine
 - `Idle`
@@ -24,10 +29,10 @@ Date: 2026-03-29
 - `SpeechDetected`
 - `Transcribing`
 - `PostProcessing`
-- `Delivering`
-- `Delivered` / `Error`
+- `Injecting`
+- `Injected` / `Error`
 
-Transitions must be logged with an `utterance_id` and timestamps.
+Every transition should include `utterance_id` and timestamps.
 
 ## Core Data Contracts
 - `Utterance`
@@ -39,23 +44,22 @@ Transitions must be logged with an `utterance_id` and timestamps.
   - `raw_text`
   - `normalized_text`
   - `latency_ms`
-- `DeliveryResult`
-  - `target_kind` (`focused_app_inject`)
-  - `target_id`
+- `InjectionResult`
+  - `target_app`
+  - `mode`
   - `ok`
   - `stderr_excerpt`
 
 ## Concurrency Model
-- UI thread: synchronous render + key handling (crossterm poll timeout loop).
-- Workers: tokio tasks for capture, VAD, ASR, delivery.
-- Channels:
-  - bounded channels between stages for backpressure.
-  - explicit drop policy and error reporting when saturated.
+- UI loop: sync draw + key handling.
+- Workers: async tasks/channels for capture -> vad -> asr -> processor -> injector.
+- Bounded channels for backpressure and explicit overflow behavior.
 
 ## Failure Domains
-- Capture failure (mic unavailable).
-- ASR failure (model not loaded / runtime fault).
-- Delivery failure (session missing / CLI error).
-- UI non-fatal render issues.
+- Mic capture unavailable.
+- ASR runtime/model failure.
+- Injection permission denial.
+- Focused app not allowed by mode.
+- UI/render non-fatal issues.
 
-Each failure maps to a recovery action in UI and logs.
+Each failure must map to a recovery hint in UI/runtime logs.

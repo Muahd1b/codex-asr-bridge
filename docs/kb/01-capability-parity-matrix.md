@@ -1,44 +1,43 @@
-# Capability Parity Matrix: Wispr Flow -> Local Rust Product
+# Capability Parity Matrix: WhisperFlow Reference -> Local Injection Runtime
 
 Date: 2026-03-29
 
 ## Capability Mapping
-| Capability Group | Wispr Flow Reference Behavior | Local Rust Target | Gap Level |
+| Capability Group | WhisperFlow Reference | Local Target | Gap Level |
 |---|---|---|---|
-| Dictation speed/UX | Fast push-to-talk style insertion, app-wide usage | Global hotkey daemon toggle (start/stop) with focused-app injection | Medium |
-| Quiet speech support | Works in discreet/quiet speaking mode | Depends on model/VAD tuning; support target via calibration | Medium |
-| Cross-app insertion | Pasting/insertion in many apps with fallbacks | Focused-app injection adapter with strict mode controls | High |
-| Command Mode | Rewrite/edit selected text, question mode | Local command transform pipeline (rewrite/summarize/format) | Medium |
-| Dictionary/snippets | Shared + personal shortcuts | Local dictionary + snippets with profile storage | Medium |
-| Privacy mode | Zero retention options and admin controls | Local-only default with retention controls and purge | Low |
-| Team/compliance admin | Enterprise controls, policy enforcement | Out of v1 scope; local single-user first | Very High |
+| Dictation UX | Fast dictation across apps | Global daemon + focused-app injection | Medium |
+| Quiet speech support | Strong | Depends on model + VAD tuning | Medium |
+| Always-on quality | Mature turn segmentation | Not fully integrated yet | High |
+| Live correction quality | Backtracking + cleanup | Basic transforms only | High |
+| Command mode | Rich rewrite operations | Present, needs expansion | Medium |
+| Personalization | Dictionary + snippets | Not integrated yet | High |
+| Reliability tooling | Mature operational behavior | Basic logs/tests only | High |
+| Privacy defaults | Strong local/privacy controls | Local-first by design | Low |
 
-## Required Parity Scope (Desktop Functional Parity)
-Included for this product:
-- Always-on dictation with robust turn segmentation.
-- Deterministic focused-app injection behavior.
-- Local transcript cleanup and style presets.
-- Local command mode for selected text workflows.
-- Local dictionary/snippets.
-- Reliability and observability comparable to daily production use.
+## Required Scope (This Repo)
+Included:
+- local ASR,
+- focused-app injection,
+- command-mode local rewrites,
+- deterministic runtime behavior,
+- no bridge/session transport.
 
-Not included in v1:
-- Mobile apps.
-- Organization/team admin/compliance workflows.
-- Hosted analytics backends.
-- Session-bridge or websocket transport workflows.
+Out of scope:
+- mobile,
+- team/compliance features,
+- hosted analytics,
+- session-forwarding transports.
 
 ## Priority Order
 P0:
-- VAD-based always-on turn segmentation.
-- Stable TUI control plane and health states.
-- Deterministic focused-app injection outcomes.
+- VAD turn detection.
+- Always-on continuous pipeline.
+- Injection fallback reliability.
 
 P1:
-- Post-processing pipeline (punctuation, fillers, style).
-- Command mode improvements.
-- Dictionary/snippets and developer context helpers.
+- Live correction layer.
+- Optional final-pass local rewrite model.
+- Personalization store.
 
 P2:
-- Broader app-compatibility fallback strategy.
-- Packaging + installer + migration tooling.
+- App profiles, observability hardening, packaging/autostart.
