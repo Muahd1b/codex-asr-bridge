@@ -101,7 +101,7 @@ impl Default for Profile {
             inject_app: InjectApp::TerminalOnly,
             chunk_chars: 180,
             asr_language: "en".into(),
-            ptt_hotkey: "F8".into(),
+            ptt_hotkey: "RIGHT_SHIFT".into(),
         }
     }
 }
@@ -173,18 +173,8 @@ pub fn load_or_create_profile() -> Result<(Profile, PathBuf)> {
 }
 
 pub fn normalize_ptt_hotkey(raw: &str) -> String {
-    match raw.trim().to_ascii_uppercase().as_str() {
-        "F8" => "F8".to_string(),
-        "F9" => "F9".to_string(),
-        "F10" => "F10".to_string(),
-        "F11" => "F11".to_string(),
-        "F12" => "F12".to_string(),
-        "RIGHT_SHIFT" => "RIGHT_SHIFT".to_string(),
-        "RIGHT_CONTROL" => "RIGHT_CONTROL".to_string(),
-        "RIGHT_ALT" => "RIGHT_ALT".to_string(),
-        "CAPS_LOCK" => "CAPS_LOCK".to_string(),
-        _ => "F8".to_string(),
-    }
+    let _ = raw;
+    "RIGHT_SHIFT".to_string()
 }
 
 pub fn save_profile(path: &Path, profile: &Profile) -> Result<()> {

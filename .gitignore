@@ -11,9 +11,6 @@ __pycache__/
 tools/session-switcher-tui/target/
 
 # Runtime artifacts
-.bridge_server.log
-.bridge_server.pid
-.codex_receiver_session
 *.log
 
 # Local config state

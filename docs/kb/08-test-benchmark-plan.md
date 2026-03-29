@@ -6,23 +6,22 @@ Date: 2026-03-29
 
 ### Unit Tests
 - command parsing and transforms.
-- session ID parsing/validation.
+- inject-mode parsing/validation.
 - VAD endpointing logic.
 
 ### Integration Tests
 - end-to-end utterance -> transcript -> delivery.
-- selected-session-only routing correctness.
-- server lifecycle start/stop and health transitions.
+- focused-app target/mode correctness.
+- daemon lifecycle start/stop and health transitions.
 
 ### Soak Tests
 - always-on mode for 30-60 minutes.
 - repeated start/stop cycles for capture and server.
 
 ## Routing Correctness Test
-- prepare N known session IDs.
-- set explicit receiver ID.
+- prepare focused-app scenarios (Terminal/iTerm/Warp + disallowed apps).
 - send 100 synthetic utterances.
-- assert 100% deliveries target selected ID; 0 misroutes.
+- assert deliveries obey inject mode and never use hidden fallback behavior.
 
 ## Latency Benchmarks
 Metrics:
@@ -36,8 +35,8 @@ Target SLOs:
 ## Failure Injection
 - missing model file.
 - unavailable microphone.
-- Codex binary unavailable.
-- invalid selected session id.
+- accessibility/input-monitoring denied.
+- focused app disallowed by inject mode.
 
 Expected outcome:
 - no panic,

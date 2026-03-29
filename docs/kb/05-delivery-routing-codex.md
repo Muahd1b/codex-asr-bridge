@@ -1,43 +1,32 @@
-# Delivery & Routing: Deterministic Codex Session Targeting
+# Delivery & Routing: Deterministic Focused-App Injection
 
 Date: 2026-03-29
 
 ## Problem
-Any implicit fallback to "last" can route text into the wrong conversation.
+Injection failures or hidden fallback behavior can send text to the wrong place.
 
 ## Delivery Contract
-- Delivery target must be explicitly selected session ID.
-- If selected session is missing/invalid, block delivery and show actionable error.
-- No hidden fallback unless user explicitly enables fallback mode.
+- Delivery target is the current focused app (subject to configured inject mode).
+- If focused app is not allowed for the current mode, block delivery and show actionable error.
+- No hidden fallback to session forwarding or bridge transport.
 
-## Codex CLI Interface (current)
-Command:
-- `codex exec resume [SESSION_ID] [PROMPT]`
-- `PROMPT` can be `-` to read stdin.
+## Injection Interface (current)
+- Focused app detected via macOS System Events.
+- Keystroke injection performed through AppleScript.
+- Chunked insertion with newline preservation.
 
-Important options from CLI help:
-- `--last` resumes most recent session.
-- `--skip-git-repo-check` allows operation outside git repo.
-
-## Session Store Contract
-Source path pattern:
-- `~/.codex/sessions/YYYY/MM/DD/*.jsonl`
-
-Observed first line format:
-- record type `session_meta` containing `id`, `timestamp`, and `cwd`.
-
-## Routing Algorithm (Proposed)
-1. Read selected receiver ID from local state file.
-2. Validate UUID format.
-3. Verify existence in session index.
-4. Execute `codex exec resume <id> -` with transcript stdin.
-5. Store `DeliveryResult` with return code + stderr excerpt.
+## Routing Algorithm (Current)
+1. Resolve focused app name.
+2. Validate against inject mode (`terminal_only`, `any_focused`, `auto`).
+3. Split transcript into bounded chunks.
+4. Inject chunks to focused app through AppleScript.
+5. Emit runtime/talk log result with target app and chunk count.
 
 ## Failure Handling
-- Exit non-zero: show `codex` stderr in talk pane.
-- Session not found: block and prompt reselection.
-- Codex binary missing: health state red + setup hint.
+- Accessibility denied: show explicit macOS TCC guidance.
+- Focused app not allowed: block and tell user how to switch mode.
+- AppleScript failure: show truncated stderr/stdout detail.
 
 ## Idempotency / Safety
-- Attach `utterance_id` in internal logs for each delivery attempt.
-- Keep delivery retry count configurable (default 0 for Codex mode).
+- Keep one utterance delivery attempt per completed recording.
+- Include timing and target app details in runtime logs for debugging.

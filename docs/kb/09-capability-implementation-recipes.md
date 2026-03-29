@@ -20,20 +20,20 @@ Required controls:
 - Hard stop within <= 200 ms.
 - Visual state in TUI footer.
 
-## Recipe 2: Deterministic Codex Session Delivery
+## Recipe 2: Deterministic Focused-App Delivery
 Objective:
-- Never send transcript to wrong session.
+- Never inject transcript into an unintended app.
 
 Implementation:
-1. Read selected session ID from local receiver state.
-2. Validate ID and confirm session exists in index.
-3. Execute `codex exec resume <id> -` and write transcript over stdin.
-4. Capture `returncode/stdout/stderr`.
-5. Surface success/failure in talk pane with `utterance_id`.
+1. Resolve focused app from System Events.
+2. Validate target against inject mode.
+3. Split transcript into bounded chunks.
+4. Inject chunks through AppleScript.
+5. Surface success/failure in talk pane with target app + chunk count.
 
 Guardrails:
-- No implicit `--last` fallback by default.
-- Block delivery if receiver missing.
+- No hidden session-forwarding fallback.
+- Block delivery if focused app is disallowed by mode.
 
 ## Recipe 3: Transcript Cleanup Pipeline
 Objective:
@@ -95,8 +95,8 @@ Implementation:
 - health panel showing:
   - model loaded,
   - mic available,
-  - codex binary ready,
-  - receiver session set.
+  - accessibility permissions,
+  - injection mode/target readiness.
 
 ## Recipe 7: Error Recovery UX
 Objective:
@@ -105,5 +105,5 @@ Objective:
 Common errors and action hints:
 - mic unavailable -> show input device list shortcut.
 - model load fail -> show exact path expected.
-- session missing -> jump cursor to sessions pane.
-- codex command fail -> include stderr excerpt + retry hint.
+- focused app disallowed -> show inject mode switch hint.
+- AppleScript/TCC fail -> show permission remediation steps.

@@ -40,7 +40,7 @@ Transitions must be logged with an `utterance_id` and timestamps.
   - `normalized_text`
   - `latency_ms`
 - `DeliveryResult`
-  - `target_kind` (`codex_session` | `app_insert`)
+  - `target_kind` (`focused_app_inject`)
   - `target_id`
   - `ok`
   - `stderr_excerpt`

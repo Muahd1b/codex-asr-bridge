@@ -36,15 +36,10 @@ pub fn run_daemon() -> Result<()> {
     let voxtral = VoxtralConfig::from_env(&profile.asr_language);
     voxtral.validate()?;
 
-    let requested_hotkey =
-        std::env::var("ASR_PTT_KEY").unwrap_or_else(|_| profile.ptt_hotkey.clone());
-    let trigger_key = parse_trigger_key(&requested_hotkey).unwrap_or(Key::F8);
+    let trigger_key = Key::ShiftRight;
 
     eprintln!("ASR global PTT daemon started");
-    eprintln!(
-        "Trigger key: {:?} (set in profile or ASR_PTT_KEY)",
-        trigger_key
-    );
+    eprintln!("Trigger key: ShiftRight (fixed)");
     eprintln!("Press once to start recording, press again to transcribe+inject");
 
     let state = Arc::new(Mutex::new(Inner {
@@ -229,19 +224,4 @@ fn handle_event(state: &Arc<Mutex<Inner>>, event: Event) -> Result<()> {
     }
 
     Ok(())
-}
-
-fn parse_trigger_key(input: &str) -> Option<Key> {
-    match input.trim().to_ascii_uppercase().as_str() {
-        "F8" => Some(Key::F8),
-        "F9" => Some(Key::F9),
-        "F10" => Some(Key::F10),
-        "F11" => Some(Key::F11),
-        "F12" => Some(Key::F12),
-        "RIGHT_SHIFT" => Some(Key::ShiftRight),
-        "RIGHT_CONTROL" => Some(Key::ControlRight),
-        "RIGHT_ALT" => Some(Key::AltGr),
-        "CAPS_LOCK" => Some(Key::CapsLock),
-        _ => None,
-    }
 }

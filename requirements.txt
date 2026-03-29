@@ -1,7 +1,1 @@
-fastapi
-uvicorn[standard]
-websockets
-mlx-whisper
 huggingface_hub
-python-multipart
-pydantic

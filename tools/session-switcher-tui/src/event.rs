@@ -16,32 +16,6 @@ pub fn handle_key_event(app: &mut App, key: KeyEvent) -> Result<LoopControl> {
         KeyCode::Tab if is_press_like(key.kind) => {
             app.focus = app.focus.next();
         }
-        KeyCode::Char(' ') => match key.kind {
-            KeyEventKind::Press => {
-                // Some terminals do not emit key-release; allow press-to-toggle fallback.
-                let action = if app.recording_active() {
-                    app.stop_push_to_talk_and_process()
-                } else {
-                    app.start_push_to_talk()
-                };
-                if let Err(err) = action {
-                    app.push_talk(format!("ERROR: {}", err));
-                }
-            }
-            KeyEventKind::Repeat => {}
-            KeyEventKind::Release => {
-                if app.recording_active() {
-                    if let Err(err) = app.stop_push_to_talk_and_process() {
-                        app.push_talk(format!("ERROR: {}", err));
-                    }
-                }
-            }
-        },
-        KeyCode::Char('t') | KeyCode::Char('T') if is_press_like(key.kind) => {
-            if let Err(err) = app.trigger_single_shot(5) {
-                app.push_talk(format!("ERROR: {}", err));
-            }
-        }
         KeyCode::Char('p') | KeyCode::Char('P') if is_press_like(key.kind) => {
             app.profile.rewrite_mode = app.profile.rewrite_mode.next();
             app.save_profile()?;
@@ -70,11 +44,6 @@ pub fn handle_key_event(app: &mut App, key: KeyEvent) -> Result<LoopControl> {
         KeyCode::Char('g') | KeyCode::Char('G') if is_press_like(key.kind) => {
             if let Err(err) = app.toggle_global_ptt() {
                 app.push_runtime(format!("Global PTT toggle failed: {}", err));
-            }
-        }
-        KeyCode::Char('k') | KeyCode::Char('K') if is_press_like(key.kind) => {
-            if let Err(err) = app.cycle_ptt_hotkey() {
-                app.push_runtime(format!("PTT hotkey update failed: {}", err));
             }
         }
         KeyCode::Char('c') | KeyCode::Char('C') if is_press_like(key.kind) => {

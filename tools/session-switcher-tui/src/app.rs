@@ -118,6 +118,9 @@ impl App {
         if let Some(idx) = line.find("[daemon] injected:") {
             self.daemon_transcribing = false;
             let msg = line[idx + "[daemon] ".len()..].trim();
+            if let Some(app) = extract_target_app(msg) {
+                self.last_injected_app = Some(app);
+            }
             self.push_talk(msg.to_string());
             return;
         }
@@ -157,27 +160,6 @@ impl App {
     pub fn save_profile(&mut self) -> Result<()> {
         self.profile.ptt_hotkey = config::normalize_ptt_hotkey(&self.profile.ptt_hotkey);
         config::save_profile(&self.profile_path, &self.profile)?;
-        Ok(())
-    }
-
-    pub fn cycle_ptt_hotkey(&mut self) -> Result<()> {
-        let current = config::normalize_ptt_hotkey(&self.profile.ptt_hotkey);
-        self.profile.ptt_hotkey = match current.as_str() {
-            "F8" => "F9".to_string(),
-            "F9" => "F10".to_string(),
-            "F10" => "F11".to_string(),
-            "F11" => "F12".to_string(),
-            "F12" => "RIGHT_SHIFT".to_string(),
-            _ => "F8".to_string(),
-        };
-        self.save_profile()?;
-        self.push_runtime(format!("PTT hotkey set to {}", self.profile.ptt_hotkey));
-
-        if self.global_ptt_running {
-            self.stop_global_ptt();
-            self.start_global_ptt()?;
-            self.push_runtime("Global PTT daemon restarted with new hotkey");
-        }
         Ok(())
     }
 
@@ -289,4 +271,16 @@ impl App {
 
 fn now_hms() -> String {
     Local::now().format("%H:%M:%S").to_string()
+}
+
+fn extract_target_app(msg: &str) -> Option<String> {
+    let start = msg.find("-> '")?;
+    let rest = &msg[start + 4..];
+    let end = rest.find('\'')?;
+    let value = rest[..end].trim();
+    if value.is_empty() {
+        None
+    } else {
+        Some(value.to_string())
+    }
 }

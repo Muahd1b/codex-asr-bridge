@@ -1,20 +1,19 @@
 # Codex ASR Switch
 
-Rust-first, local ASR dictation for macOS.
+Local-only ASR dictation for macOS.
 
-`ASR_Switch` is the primary runtime and handles:
-- push-to-talk microphone capture
+`ASR_Switch` now runs as a Rust daemon/TUI workflow only:
+- global hotkey microphone capture
 - local Voxtral transcription
-- focused-app text injection via macOS accessibility (`System Events`)
+- focused-app text injection through macOS accessibility (`System Events`)
 
-A FastAPI bridge still exists for compatibility (`app/main.py`), but it is not required for normal usage.
+There is no FastAPI/WebSocket bridge and no session-forwarding connection path in this repository.
 
 ## Project Layout
 
 - `tools/session-switcher-tui/` - Rust app + global hotkey daemon
 - `config/profile.json` - runtime profile (created on first run)
-- `app/main.py` - optional legacy compatibility bridge
-- `scripts/` - helper scripts
+- `scripts/download_model.py` - optional Whisper model download helper
 
 ## Run
 
@@ -29,15 +28,21 @@ cd tools/session-switcher-tui
 cargo run --release
 ```
 
-Global daemon mode:
+Daemon-only mode:
 
 ```bash
 ASR_Switch daemon
 ```
 
-## Path Resolution Defaults
+## Dictation Flow
 
-You can override all important paths with env vars.
+- Global hotkey is toggle-based:
+  - first key press = start recording
+  - second key press = stop + transcribe + inject
+- Key release does not stop recording.
+- Injection target is the currently focused app (respecting inject mode rules in profile).
+
+## Path Resolution Defaults
 
 - Profile path:
   - `ASR_PROFILE_PATH` (exact file)
@@ -50,7 +55,7 @@ You can override all important paths with env vars.
   - `ASR_VOXTRAL_LOCK_FILE` (default `/tmp/codex-asr-voxtral.lock`)
   - `ASR_GLOBAL_PTT_LOCK_FILE` (default `/tmp/codex-asr-global-ptt.lock`)
 
-## Main Runtime Env Vars
+## Runtime Env Vars
 
 - `ASR_VOXTRAL_BIN`
 - `ASR_VOXTRAL_MODEL_DIR`
@@ -61,31 +66,27 @@ You can override all important paths with env vars.
 - `ASR_VOXTRAL_LOCK_FILE`
 - `ASR_GLOBAL_PTT_LOCK_FILE`
 - `ASR_FFMPEG_BIN`
-- `ASR_PTT_KEY`
 - `ASR_LANGUAGE`
+
+## Hotkey
+
+Profile field:
+- `config/profile.json` -> `ptt_hotkey`
+
+Current behavior:
+- fixed to `RIGHT_SHIFT`
+- no hotkey cycling in TUI
 
 ## Keybindings (TUI)
 
-- `Space`: start/stop recording and process transcript
-- `t`: single-shot record/transcribe/inject
 - `c`: rewrite selected text in focused app
 - `p`: cycle rewrite mode
 - `i`: cycle inject mode
 - `g`: toggle global PTT daemon
-- `k`: cycle daemon hotkey
 - `r`: reload profile
 - `v`: validate Voxtral setup
 - `Tab`: switch pane
 - `q`: quit
-
-## Python Scripts
-
-- `scripts/download_model.py` - download Whisper model assets (optional)
-- `scripts/ptt_client.py` - optional bridge WebSocket push-to-talk client
-- `scripts/ws_client_example.py` - optional bridge test client
-
-Removed legacy script:
-- `scripts/asr_hub.py`
 
 ## macOS Permissions
 

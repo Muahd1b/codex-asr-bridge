@@ -30,7 +30,7 @@ Rust-first target engine (`whisper-rs`) expects whisper.cpp-compatible model art
 - No crash on repeated transcriptions (100-run loop).
 
 ## Rollback Plan
-- If Rust engine path fails quality/performance, temporarily fallback to existing MLX bridge in compatibility mode while Rust integration is fixed.
+- If Rust engine path fails quality/performance, temporarily keep Voxtral runtime as primary while Rust Whisper integration is fixed.
 
 ## Decision Gate
 Before coding ASR crate, confirm:
