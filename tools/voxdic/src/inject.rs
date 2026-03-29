@@ -33,7 +33,7 @@ pub fn inject_focused_text(
     }
 
     let front = frontmost_process_name()?;
-    if matches!(app_mode, InjectApp::TerminalOnly | InjectApp::Auto) && !is_terminal_app(&front) {
+    if matches!(app_mode, InjectApp::TerminalOnly) && !is_terminal_app(&front) {
         return Err(anyhow!(
             "Focused app is '{}', not Terminal/iTerm. Bring your CLI tab to front or switch mode to any_focused.",
             front
@@ -51,6 +51,41 @@ pub fn inject_focused_text(
     })
 }
 
+pub fn frontmost_app_name() -> Result<String> {
+    frontmost_process_name()
+}
+
+pub fn inject_text_to_target_app(
+    text: &str,
+    app_mode: InjectApp,
+    chunk_chars: usize,
+    target_app: &str,
+) -> Result<InjectResult> {
+    let trimmed = text.trim();
+    if trimmed.is_empty() {
+        return Err(anyhow!("Empty transcript, nothing to inject"));
+    }
+
+    if matches!(app_mode, InjectApp::TerminalOnly) && !is_terminal_app(target_app) {
+        return Err(anyhow!(
+            "Target app is '{}', not Terminal/iTerm. Set inject mode to auto or any_focused.",
+            target_app
+        ));
+    }
+
+    activate_app(target_app)?;
+
+    let chunks = split_for_injection(trimmed, chunk_chars.max(40));
+    for chunk in &chunks {
+        inject_chunk(chunk)?;
+    }
+
+    Ok(InjectResult {
+        front_app: target_app.to_string(),
+        chunks: chunks.len(),
+    })
+}
+
 pub fn rewrite_selected_text(
     app_mode: InjectApp,
     rewrite_mode: RewriteMode,
@@ -62,7 +97,7 @@ pub fn rewrite_selected_text(
     }
 
     let front = frontmost_process_name()?;
-    if matches!(app_mode, InjectApp::TerminalOnly | InjectApp::Auto) && !is_terminal_app(&front) {
+    if matches!(app_mode, InjectApp::TerminalOnly) && !is_terminal_app(&front) {
         return Err(anyhow!(
             "Focused app is '{}', not Terminal/iTerm. Bring your CLI tab to front or switch mode to any_focused.",
             front
@@ -128,6 +163,21 @@ fn send_command_shortcut(key: &str) -> Result<()> {
     let script = vec![
         "tell application \"System Events\"".to_string(),
         format!("keystroke \"{}\" using {{command down}}", escaped),
+        "end tell".to_string(),
+    ];
+    let _ = run_osascript_owned(script)?;
+    Ok(())
+}
+
+fn activate_app(app_name: &str) -> Result<()> {
+    let escaped = escape_applescript(app_name);
+    let script = vec![
+        "tell application \"System Events\"".to_string(),
+        format!(
+            "if not (exists process \"{}\") then error \"Target app not running\" number -1728",
+            escaped
+        ),
+        format!("set frontmost of process \"{}\" to true", escaped),
         "end tell".to_string(),
     ];
     let _ = run_osascript_owned(script)?;

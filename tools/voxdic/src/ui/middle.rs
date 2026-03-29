@@ -12,7 +12,9 @@ pub fn draw(frame: &mut Frame, area: Rect, app: &App) {
 
     let mut lines = Vec::new();
     if app.talk_logs.is_empty() {
-        lines.push("No daemon events yet. Use your global hotkey to start/stop recording.".to_string());
+        lines.push(
+            "No daemon events yet. Use your global hotkey to start/stop recording.".to_string(),
+        );
     } else {
         let max_lines = area.height.saturating_sub(3) as usize;
         let tail = app

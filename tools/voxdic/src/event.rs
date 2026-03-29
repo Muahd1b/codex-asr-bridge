@@ -32,6 +32,18 @@ pub fn handle_key_event(app: &mut App, key: KeyEvent) -> Result<LoopControl> {
                 app.profile.inject_app.label()
             ));
         }
+        KeyCode::Char('l') | KeyCode::Char('L') if is_press_like(key.kind) => {
+            app.profile.live_inject = !app.profile.live_inject;
+            app.save_profile()?;
+            app.push_runtime(format!(
+                "Live inject {}",
+                if app.profile.live_inject {
+                    "enabled"
+                } else {
+                    "disabled"
+                }
+            ));
+        }
         KeyCode::Char('r') | KeyCode::Char('R') if is_press_like(key.kind) => {
             app.reload_profile()?;
         }

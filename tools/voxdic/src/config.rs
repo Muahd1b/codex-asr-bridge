@@ -54,7 +54,7 @@ pub enum InjectApp {
 
 impl Default for InjectApp {
     fn default() -> Self {
-        Self::TerminalOnly
+        Self::Auto
     }
 }
 
@@ -85,6 +85,7 @@ pub struct Profile {
     pub filler_words: Vec<String>,
     pub mic_device_index: String,
     pub inject_app: InjectApp,
+    pub live_inject: bool,
     pub chunk_chars: usize,
     pub asr_language: String,
     pub ptt_hotkey: String,
@@ -98,7 +99,8 @@ impl Default for Profile {
             auto_punctuate: true,
             filler_words: vec!["um".into(), "uh".into(), "like".into(), "you know".into()],
             mic_device_index: "0".into(),
-            inject_app: InjectApp::TerminalOnly,
+            inject_app: InjectApp::Auto,
+            live_inject: true,
             chunk_chars: 180,
             asr_language: "en".into(),
             ptt_hotkey: "RIGHT_SHIFT".into(),

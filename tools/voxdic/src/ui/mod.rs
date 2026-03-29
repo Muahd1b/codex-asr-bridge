@@ -11,12 +11,11 @@ pub fn draw(frame: &mut Frame, app: &App) {
     let area = frame.area();
     if area.width < 96 || area.height < 28 {
         frame.render_widget(
-            Paragraph::new("Terminal too small. Need at least 96x28 for 3-pane layout.")
-                .block(
-                    Block::default()
-                        .title("Voxtral Flow Dictation")
-                        .borders(Borders::ALL),
-                ),
+            Paragraph::new("Terminal too small. Need at least 96x28 for 3-pane layout.").block(
+                Block::default()
+                    .title("Voxtral Flow Dictation")
+                    .borders(Borders::ALL),
+            ),
             area,
         );
         return;

@@ -5,12 +5,9 @@ use crate::util::ExpandHome;
 
 pub const ENV_ASR_PROJECT_DIR: &str = "ASR_PROJECT_DIR";
 pub const ENV_ASR_PROFILE_PATH: &str = "ASR_PROFILE_PATH";
-pub const ENV_ASR_VOXTRAL_BIN: &str = "ASR_VOXTRAL_BIN";
 pub const ENV_ASR_VOXTRAL_MODEL_DIR: &str = "ASR_VOXTRAL_MODEL_DIR";
-pub const ENV_ASR_VOXTRAL_LOCK_FILE: &str = "ASR_VOXTRAL_LOCK_FILE";
 pub const ENV_ASR_GLOBAL_PTT_LOCK_FILE: &str = "ASR_GLOBAL_PTT_LOCK_FILE";
 
-pub const DEFAULT_VOXTRAL_LOCK_FILE: &str = "/tmp/voxdic-voxtral.lock";
 pub const DEFAULT_GLOBAL_PTT_LOCK_FILE: &str = "/tmp/voxdic-global-ptt.lock";
 
 pub fn profile_path() -> PathBuf {
@@ -20,26 +17,11 @@ pub fn profile_path() -> PathBuf {
     project_dir().join("config/profile.json")
 }
 
-pub fn voxtral_bin_path() -> PathBuf {
-    if let Ok(v) = env::var(ENV_ASR_VOXTRAL_BIN) {
-        return PathBuf::from(v).expand_home();
-    }
-    default_voxtral_root().join("voxtral")
-}
-
 pub fn voxtral_model_dir() -> PathBuf {
     if let Ok(v) = env::var(ENV_ASR_VOXTRAL_MODEL_DIR) {
         return PathBuf::from(v).expand_home();
     }
     default_voxtral_root().join("voxtral-model")
-}
-
-pub fn voxtral_lock_file() -> PathBuf {
-    PathBuf::from(
-        env::var(ENV_ASR_VOXTRAL_LOCK_FILE)
-            .unwrap_or_else(|_| DEFAULT_VOXTRAL_LOCK_FILE.to_string()),
-    )
-    .expand_home()
 }
 
 pub fn global_ptt_lock_file() -> PathBuf {
